@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymIQ – Seu Plano de Treino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red:   #e63946;
+    --dark:  #0a0a0f;
+    --panel: #111118;
+    --card:  #16161f;
+    --border:#1e1e2e;
+    --muted: #4a4a6a;
+    --text:  #d4d4e8;
+    --white: #f0f0ff;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    position: relative;
+    padding: 60px 24px 80px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% -10%, rgba(230,57,70,.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .back-link {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  .back-link:hover { color: var(--white); }
+
+  .page-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    color: var(--white);
+    line-height: 1;
+    animation: fadeUp .5s ease both;
+  }
+  .page-header h1 span { color: var(--red); }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 15px;
+    margin-top: 10px;
+    animation: fadeUp .5s .1s ease both;
+  }
+
+  /* ── LAYOUT ── */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── NIVEL CARD ── */
+  .nivel-banner {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 32px;
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    animation: fadeUp .4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .nivel-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--nivel-cor, var(--red));
+  }
+  .nivel-icon { font-size: 3.5rem; flex-shrink: 0; }
+  .nivel-info h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    color: var(--white);
+    line-height: 1;
+  }
+  .nivel-info .nivel-tag {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    color: var(--white);
+    background: var(--nivel-cor, var(--red));
+  }
+  .nivel-info p { color: var(--muted); font-size: 14px; margin-top: 8px; line-height: 1.5; }
+
+  /* Barra de probabilidade */
+  .proba-bars { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .proba-item label {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted); margin-bottom: 5px;
+    font-weight: 500; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .proba-track {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .proba-fill {
+    height: 100%;
+    width: 0%;
+    transition: width .6s ease;
+    background: var(--fill-color, #22c55e);
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+    animation: fadeUp .5s .1s ease both;
+  }
+  @media(max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .stat-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--white); line-height: 1; }
+  .stat-unit  { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── MACROS ── */
+  .macros-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 40px;
+    animation: fadeUp .5s .15s ease both;
+  }
+  @media(max-width: 640px) { .macros-grid { grid-template-columns: 1fr 1fr; } }
+
+  .macro-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .macro-emoji { font-size: 22px; margin-bottom: 8px; }
+  .macro-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--white); }
+  .macro-name { font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+
+  /* ── TREINO SEMANAL ── */
+  .semana {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 48px;
+    animation: fadeUp .5s .2s ease both;
+  }
+
+  .dia-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .dia-card:hover { border-color: var(--red); }
+  .dia-card.descanso { opacity: .5; }
+
+  .dia-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .dia-nome {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .dia-treino {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--white);
+    flex: 1;
+  }
+  .dia-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    background: rgba(230,57,70,.15);
+    color: var(--red);
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  .dia-badge.rest { background: var(--border); color: var(--muted); }
+  .toggle-icon { color: var(--muted); font-size: 18px; transition: transform .2s; flex-shrink: 0; }
+  .dia-card.open .toggle-icon { transform: rotate(180deg); }
+
+  .dia-body {
+    display: none;
+    padding: 0 22px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .dia-card.open .dia-body { display: block; }
+
+  .ex-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .ex-table th {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ex-table td {
+    padding: 12px;
+    font-size: 14px;
+    color: var(--text);
+    border-bottom: 1px solid rgba(30,30,46,.5);
+    vertical-align: middle;
+  }
+  .ex-table tr:last-child td { border-bottom: none; }
+  .ex-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ex-series {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--red);
+    letter-spacing: .04em;
+  }
+  .ex-obs { font-size: 12px; color: var(--muted); }
+
+  /* ── BTN ── */
+  .actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 48px;
+    animation: fadeUp .5s .3s ease both;
+  }
+
+  .btn {
+    border-radius: 12px;
+    padding: 16px 36px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: .08em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 24px rgba(230,57,70,.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(230,57,70,.5); }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--red); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:none } }
+
+  /* removida a regra vazia */
+  /* ou: adiciona propriedades úteis */
+  .card {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <a href="/" class="back-link">← Voltar</a>
+    <button id="theme-toggle" style="position:absolute;top:28px;right:28px;padding:8px 18px;border-radius:8px;background:var(--panel);color:var(--text);border:1px solid var(--border);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;" aria-label="Alternar tema">
+      <span id="theme-icon"></span>
+    </button>
+  <h1>PLANO DE <span>{{ nome.split()[0] | upper }}</span></h1>
+  <p class="header-sub">Gerado por Machine Learning · {{ objetivo }} · {{ freq }}× por semana</p>
+</div>
+
+<div class="content">
+
+  <!-- NÍVEL ML -->
+  <div class="section-label">Classificação do modelo</div>
+  <div class="nivel-banner" {% if nivel_cor %}style="--nivel-cor: {{ nivel_cor }}"{% endif %}>
+    <div class="nivel-icon">{{ nivel_icon }}</div>
+    <div class="nivel-info" style="flex:1">
+      <h2>{{ nivel_nome }}</h2>
+      <span class="nivel-tag" {% if nivel_cor %}style="background:{{ nivel_cor }}"{% endif %}>Nível detectado</span>
+      <p>
+        {% if nivel_nome == 'Iniciante' %}
+          Foco em aprender a técnica dos movimentos, desenvolver base muscular e criar consistência de treino.
+        {% elif nivel_nome == 'Intermediário' %}
+          Volume e intensidade progressiva. Boa oportunidade para especializar divisão e aumentar cargas.
+        {% else %}
+          Treinos de alta densidade, técnicas avançadas e periodização para continuar evoluindo.
+        {% endif %}
+      </p>
+
+      {% if proba %}
+      <div class="proba-bars">
+        {% set cores = ['#22c55e','#f59e0b','#ef4444'] %}
+        {% set nomes = ['Iniciante','Intermediário','Avançado'] %}
+        {% for i in range(3) %}
+        <div class="proba-item">
+          <label><span>{{ nomes[i] }}</span><span>{{ proba[i] }}%</span></label>
+          <div class="proba-track">
+            <div class="proba-fill" data-proba="{{ proba[i] }}" data-bg="{{ cores[i] }}"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="section-label">Seu perfil físico</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">IMC</div>
+      <div class="stat-value" {% if bmi_cor %}style="color: {{ bmi_cor }};"{% endif %}>{{ bmi }}</div>
+      <div class="stat-unit">{{ bmi_class }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Gordura corporal</div>
+      <div class="stat-value">{{ fat_pct }}</div>
+      <div class="stat-unit">%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">BPM médio</div>
+      <div class="stat-value" style="color:var(--red)">{{ avg_bpm }}</div>
+      <div class="stat-unit">durante o treino</div>
+    </div>
+  </div>
+
+  <!-- MACROS -->
+  <div class="section-label">Nutrição estimada</div>
+  <div class="macros-grid">
+    <div class="macro-card">
+      <div class="macro-val" style="color:var(--red)">{{ macros.calorias }}</div>
+      <div class="macro-name">kcal / dia</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-val">{{ macros.proteina }}g</div>
+      <div class="macro-name">Proteína</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-val">{{ macros.carbo }}g</div>
+      <div class="macro-name">Carboidratos</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-val">{{ macros.gordura }}g</div>
+      <div class="macro-name">Gorduras</div>
+    </div>
+  </div>
+
+  <!-- TREINO SEMANAL -->
+  <div class="section-label">Divisão semanal</div>
+  <div class="semana">
+    {% for dia in plano %}
+    <div class="dia-card {% if dia.descanso %}descanso{% endif %}" id="dia-{{ loop.index }}">
+      <div class="dia-header" {% if not dia.descanso %}onclick="toggle({{ loop.index }})"{% endif %}>
+        <span class="dia-nome">{{ dia.dia }}</span>
+        <span class="dia-treino">{{ dia.treino }}</span>
+        {% if dia.descanso %}
+          <span class="dia-badge rest">Descanso</span>
+        {% else %}
+          <span class="dia-badge">{{ dia.exercicios | length }} exerc.</span>
+          <span class="toggle-icon">↓</span>
+        {% endif %}
+      </div>
+
+      {% if not dia.descanso and dia.exercicios %}
+      <div class="dia-body">
+        <table class="ex-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Exercício</th>
+              <th>Séries × Reps</th>
+              <th>Foco</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ex in dia.exercicios %}
+            <tr>
+              <td><span class="ex-num">{{ loop.index }}</span></td>
+              <td>{{ ex[0] }}</td>
+              <td><span class="ex-series">{{ ex[1] }}</span></td>
+              <td class="ex-obs">{{ ex[2] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <a href="/" class="btn btn-outline">← Novo Perfil</a>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Imprimir Plano</button>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const card = document.getElementById('dia-' + id);
+    card.classList.toggle('open');
+  }
+    // Botão de mudança de tema
+    document.addEventListener('DOMContentLoaded', () => {
+      // Aplica tema salvo
+      const btn = document.getElementById('theme-toggle');
+      const icon = document.getElementById('theme-icon');
+
+      function setIcon(isLight) {
+        icon.innerHTML = isLight
+          ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="orange" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+          : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a4a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>';
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'light') {
+          document.documentElement.classList.add('light-theme');
+        } else {
+          document.documentElement.classList.remove('light-theme');
+        }
+        setIcon(theme === 'light');
+      }
+
+      // Aplica o tema salvo no carregamento
+      const savedTheme = localStorage.getItem('gym_theme') || 'dark';
+      applyTheme(savedTheme);
+
+      // Alterna o tema ao clicar no botão
+      btn.addEventListener('click', () => {
+        const isLight = document.documentElement.classList.toggle('light-theme');
+        const newTheme = isLight ? 'light' : 'dark';
+        localStorage.setItem('gym_theme', newTheme);
+        setIcon(isLight);
+      });
+      // Abrir o primeiro dia treino automaticamente
+      const primeiro = document.querySelector('.dia-card:not(.descanso)');
+      if (primeiro) primeiro.classList.add('open');
+    });
+  // Sincronizar tema com index.html
+  document.addEventListener('DOMContentLoaded', () => {
+    // Aplica tema salvo
+    const tema = localStorage.getItem('gym_theme');
+    if (tema === 'light') {
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+    }
+
+    // Abrir o primeiro dia treino automaticamente
+    const primeiro = document.querySelector('.dia-card:not(.descanso)');
+    if (primeiro) primeiro.classList.add('open');
+
+    // Aplicar largura e cor nas barras de probabilidade
+    document.querySelectorAll('.proba-fill').forEach(el => {
+      const v = el.getAttribute('data-proba');
+      const bg = el.getAttribute('data-bg');
+      if (v !== null) el.style.width = v + '%';
+      if (bg) el.style.background = bg;
+    });
+  });
+</script>
+<script>
+document.querySelectorAll('.proba-fill').forEach(el=>{
+  const p = parseFloat(el.dataset.proba) || 0;
+  el.style.width = p + '%';
+  el.style.background = el.dataset.bg || '';
+});
+</script>
+</body>
+</html>
